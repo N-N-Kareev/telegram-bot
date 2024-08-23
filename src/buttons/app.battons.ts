@@ -5,15 +5,19 @@ export function actionButton() {
     [
       Markup.button.webApp(
         'Сделать заказ',
-        'https://n-n-kareev.github.io/coffee/pages/menu',
+        'https://coffee-yh43.vercel.app/pages/menu',
       ),
       Markup.button.webApp(
         'История заказов',
-        'https://n-n-kareev.github.io/coffee/pages/history',
+        'https://coffee-yh43.vercel.app/pages/history',
       ),
       Markup.button.webApp(
-        'Аккаунт',
-        'https://n-n-kareev.github.io/coffee/pages/profile',
+        'Профиль',
+        'https://coffee-yh43.vercel.app/pages/profile',
+      ),
+      Markup.button.webApp(
+        'О нас',
+        'https://coffee-yh43.vercel.app/pages/about-us',
       ),
     ],
     {

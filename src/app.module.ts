@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.update';
+// import { AppController } from './app.update';
 import { AppService } from './app.service';
 import { TelegrafModule } from 'nestjs-telegraf';
+import { AppController } from './app.controller';
 import * as LocalSession from 'telegraf-session-local';
 
 const sessions = new LocalSession({ database: 'session_db.json' });
@@ -13,7 +14,7 @@ const sessions = new LocalSession({ database: 'session_db.json' });
       token: '7494399180:AAHgOJrnCFBjo5PkZ-fiKxp7Y8sZ9c9Y5E8',
     }),
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [AppService, AppController],
 })
 export class AppModule {}

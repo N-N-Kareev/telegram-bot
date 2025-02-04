@@ -2,7 +2,14 @@
 const XLSX = require('xlsx');
 const fs = require('fs');
 
+// Destructure writeFileSync
+const { writeFileSync } = fs;
+
 function generateDescription(name, category) {
+  if (!name || !category) {
+    return 'Описание недоступно'; // Возвращаем заглушку, если имя или категория не переданы
+  }
+
   const baseDescriptions = {
     coffee: [
       `Ароматный ${name}, который подарит вам заряд бодрости и наслаждения.`,
@@ -133,6 +140,7 @@ function convertNumberToSize(number) {
   return sizeMap[number] || null;
 }
 
+// Функция для группировки товаров
 function groupProducts(products) {
   const groupedProducts = products.reduce((acc, product) => {
     const baseName = product.name.split(' ')[0];
@@ -151,7 +159,6 @@ function groupProducts(products) {
         category: getCategory(product.place),
         description: product.description,
         sizes: [],
-        categoryDiscription: product.categoryDiscription,
         image: product.image,
       };
     }
@@ -201,7 +208,7 @@ function parseXlsxFile(filePath) {
       }
       if (row.length !== headers.length) {
         console.warn(
-          `Строка с количеством столбцов ${row.length} не соответствует заголовкам.`,
+          ` Строка с количеством столбцов ${row.length} не соответствует заголовкам.`,
         );
         return;
       }
@@ -218,9 +225,7 @@ function parseXlsxFile(filePath) {
       rowObject['category'] = getCategory(rowObject['place'] || '');
       rowObject['description'] = generateDescription(
         rowObject['name'],
-        Object.keys(categories).find(
-          (key) => categories[key].name === rowObject['category'].name,
-        ) || 'other',
+        rowObject['category'] ? rowObject['category'].name : 'other',
       );
 
       const cleanName = cleanProductName(rowObject['name']);
@@ -250,12 +255,17 @@ function parseXlsxFile(filePath) {
 }
 
 function saveDataToDatabaseFile(data) {
-  const filePath = './database.js';
+  const dbPath = './database.js';
 
-  const exportData = `module.exports = [
-    ${data
-      .map((item) => {
-        return `{
+  console.log('Data passed to saveDataToDatabaseFile:', data); // Add this for debugging
+
+  const exportData = `module.exports = [\n${data
+    .map((item) => {
+      if (!item.description) {
+        item.description = 'Описание недоступно'; // Заглушка, если описание не сгенерировалось
+      }
+
+      return `  {
         name: '${item.name}',
         articul: '${item.articul}',
         price: ${item.price},
@@ -263,15 +273,13 @@ function saveDataToDatabaseFile(data) {
         category: ${JSON.stringify(item.category)}, // Добавляем категорию
         description: '${item.description}',
         sizes: ${JSON.stringify(item.sizes)},
-        categoryDiscription: '${item.categoryDiscription}',
         image: '${item['image ']}' 
       }`;
-      })
-      .join(',\n')}
-  ];`;
+    })
+    .join(',\n')}\n];`;
 
   try {
-    fs.writeFileSync(filePath, exportData, 'utf-8');
+    writeFileSync(dbPath, exportData, 'utf-8');
     console.log('Данные успешно записаны в файл database.js');
   } catch (error) {
     console.error(`Ошибка при записи в файл: ${error.message}`);

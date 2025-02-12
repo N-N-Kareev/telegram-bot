@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
-// import { AppController } from './app.update';
 import { AppService } from './app.service';
 import { TelegrafModule } from 'nestjs-telegraf';
 import { AppController } from './app.controller';
+import { ProxyService } from './proxy/proxy.service';
+import { ProxyController } from './proxy/proxy.controller';
 import * as LocalSession from 'telegraf-session-local';
+import { HttpModule } from '@nestjs/axios';
 
 const sessions = new LocalSession({ database: 'session_db.json' });
 
@@ -13,8 +15,9 @@ const sessions = new LocalSession({ database: 'session_db.json' });
       middlewares: [sessions.middleware()],
       token: '7494399180:AAHgOJrnCFBjo5PkZ-fiKxp7Y8sZ9c9Y5E8',
     }),
+    HttpModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, AppController],
+  controllers: [AppController, ProxyController],
+  providers: [AppService, AppController, ProxyService, ProxyController],
 })
 export class AppModule {}

@@ -1,19 +1,26 @@
-import { AppService } from './app.service';
-import { InjectBot, Start, Update } from 'nestjs-telegraf';
+import { Ctx, InjectBot, On, Start, Update } from 'nestjs-telegraf';
 import { Context, Telegraf } from 'telegraf';
+import { AppService } from './app.service';
+import { Logger } from '@nestjs/common';
 import { actionButton } from './buttons/app.battons';
 
 @Update()
 export class AppController {
+  private readonly logger = new Logger(AppController.name);
+
   constructor(
     @InjectBot() private readonly bot: Telegraf<Context>,
     private readonly appService: AppService,
   ) {}
 
   @Start()
-  async startBot(ctx: Context) {
-    await ctx.reply(
-      `
+  async startBot(@Ctx() ctx: Context) {
+    this.logger.log(
+      `Received /start from user ${ctx.from.id} (${ctx.from.username || 'unknown'})`,
+    );
+    try {
+      await ctx.reply(
+        `
 Добро пожаловать в Мока Лайт!
 
 Приветствуем вас в нашем уютном уголке, где аромат свежесваренного кофе и теплый прием создают идеальную атмосферу для приятного отдыха!
@@ -33,7 +40,37 @@ export class AppController {
 
 С уважением,
 Команда Мока Лайт`,
-      actionButton(),
+        actionButton(),
+      );
+      this.logger.log(`Successfully sent response to user ${ctx.from.id}`);
+    } catch (error) {
+      this.logger.error(
+        `Error processing /start for user ${ctx.from.id}: ${error.message}`,
+        error.stack,
+      );
+      await ctx.reply('Произошла ошибка. Попробуйте снова позже.');
+    }
+  }
+
+  @On('text')
+  async onText(@Ctx() ctx: Context) {
+    if ('text' in ctx.message) {
+      this.logger.log(
+        `Text message from ${ctx.from.id} (${ctx.from.username || 'unknown'}): ${ctx.message.text}`,
+      );
+      await ctx.reply('Сообщение получено! Попробуйте использовать кнопки.');
+    } else {
+      this.logger.log(
+        `Non-text message from ${ctx.from.id} (${ctx.from.username || 'unknown'})`,
+      );
+    }
+  }
+
+  @On('web_app_data')
+  async onWebAppData(@Ctx() ctx: Context) {
+    this.logger.log(
+      `WebApp data from ${ctx.from.id}: ${JSON.stringify(ctx.webAppData)}`,
     );
+    await ctx.reply('Данные из WebApp получены!');
   }
 }

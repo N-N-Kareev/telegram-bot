@@ -1,5 +1,5 @@
 import { AppService } from './app.service';
-import { InjectBot, Start, Update } from 'nestjs-telegraf';
+import { Ctx, InjectBot, On, Start, Update } from 'nestjs-telegraf';
 import { Context, Telegraf } from 'telegraf';
 import { actionButton } from './buttons/app.battons';
 
@@ -35,5 +35,28 @@ export class AppController {
 Команда Мока Лайт`,
       actionButton(),
     );
+  }
+
+  @On('message')
+  async onMessage(@Ctx() ctx: Context) {
+    if ('text' in ctx.message) {
+      console.log(
+        `Text message from ${ctx.from.id} (${ctx.from.username || 'unknown'}): ${ctx.message.text}`,
+      );
+      await ctx.reply('Сообщение получено! Попробуйте использовать кнопки.');
+    } else {
+      console.log(
+        `Non-text message from ${ctx.from.id} (${ctx.from.username || 'unknown'})`,
+        ctx.message,
+      );
+      await ctx.reply(
+        'Пожалуйста, отправьте текстовое сообщение или используйте кнопки.',
+      );
+    }
+  }
+  @On('web_app_data')
+  async onWebAppData(@Ctx() ctx: Context) {
+    console.log(`WebApp data from ${ctx.from.id}:`, ctx.webAppData);
+    await ctx.reply('Данные из WebApp получены!');
   }
 }

@@ -42,7 +42,6 @@ export class ProxyController {
     }
 
     try {
-      // Передаем параметры в сервис
       const dishes = await this.proxyService.getDishes(
         sortFields,
         sortOrders,
@@ -51,7 +50,6 @@ export class ProxyController {
         parsedFilters,
       );
 
-      // Логируем важную информацию из ответа
       this.logger.debug(
         `Ответ от QuickResto: количество записей=${dishes ? dishes.length : 0}`,
       );

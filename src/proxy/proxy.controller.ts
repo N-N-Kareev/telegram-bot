@@ -49,7 +49,6 @@ export class ProxyController {
         offset,
         parsedFilters,
       );
-
       this.logger.debug(
         `Ответ от QuickResto: количество записей=${dishes ? dishes.length : 0}`,
       );
